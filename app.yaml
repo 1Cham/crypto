@@ -4,3 +4,10 @@ api_version: 1
 handlers:
 - url: /.*
   script: receiver.php
+  
+  env_variables:
+    # Replace project, instance, database, user and password with the values obtained
+    # when configuring your Cloud SQL instance.
+    MYSQL_DSN: mysql:unix_socket=/cloudsql/pro-bruin-145004:asia-east1:centralsql;dbname=car_tracker
+    MYSQL_USER: tracker
+    MYSQL_PASSWORD: 'Testing123'
