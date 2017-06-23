@@ -10,11 +10,11 @@ if (!isset($dsn, $user) || false === $password){
 }
 
 $db = new PDO($dsn, $user, $password);
-if(isset($_POST['long'])&isset($_POST['lat'])&isset($_POST['speed']){
-	$query = "INSERT INTO location (vehicleid,longitude,latitude,speed) VALUES (1,'".$_POST['long']."','".$_POST['lat']."',".$_POST['speed'].")";
-	$statement = $db->prepare($query);
-	$statement->execute();
-}
+
+$query = "INSERT INTO location (vehicleid,longitude,latitude,speed) VALUES (1,'".$_GET['long']."','".$_GET['lat']."',".$_GET['speed'].")";
+$statement = $db->prepare($query);
+$statement->execute();
+
 //$all = $statement->fetchAll();
 
 
