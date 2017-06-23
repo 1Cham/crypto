@@ -1,4 +1,7 @@
 <?php
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
 $dsn = getenv('MYSQL_DSN');
 $user = getenv('MYSQL_USER');
 $password = getenv('MYSQL_PASSWORD');
