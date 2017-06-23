@@ -9,7 +9,7 @@ $db = new PD0($dsn, $user, $password);
 
 $statement = $db->prepare("INSERT INTO location (vehicleid,longitude,latitude,speed) VALUES (1,'".$_POST['long']."','".$_POST['lat']."',".$_POST['speed'].")");
 $statement->execute();
-$all = $statement->fetchAll();
+//$all = $statement->fetchAll();
 
 //foreach ($all as $data){
 //	echo $data["message"]."<br>";
