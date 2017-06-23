@@ -7,17 +7,13 @@ if (!isset($dsn, $user) || false === $password){
 }
 $db = new PD0($dsn, $user, $password);
 
-$statement = $db->prepare("select messageaksndlkan");
+$statement = $db->prepare("INSERT INTO location (vehicleid,longitude,latitude,speed) VALUES (1,'".$_POST['long']."','".$_POST['lat']."',".$_POST['speed'].")");
 $statement->execute();
 $all = $statement->fetchAll();
 
-foreach ($all as $data){
-	echo $data["message"]."<br>";
-}
+//foreach ($all as $data){
+//	echo $data["message"]."<br>";
+//}
 
-$data = $_GET['lat'].", ".$_GET['long'];
-fwrite($handle, $data);
-fclose($handle);
-#echo "hello";, speed: ".$_POST['alt']
 
 ?>
