@@ -11,7 +11,10 @@ if (!isset($dsn, $user) || false === $password){
 
 $db = new PDO($dsn, $user, $password);
 
-$query = "INSERT INTO location (vehicleid,longitude,latitude,speed,timestamp) VALUES (1,'".$_POST['long']."','".$_POST['lat']."','".$_POST['speed']."','".$_POST['timestamp']."')";
+$timestamp = substr($_POST['timestamp'], 0, -5);
+$timestamp = str_replace(".","",$timestamp);
+
+$query = "INSERT INTO location (vehicleid,longitude,latitude,speed,timestamp) VALUES (1,'".$_POST['long']."','".$_POST['lat']."','".$_POST['speed']."','".$timestamp."')";
 $statement = $db->prepare($query);
 $statement->execute();
 
