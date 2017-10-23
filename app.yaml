@@ -1,6 +1,10 @@
 runtime: php
 env: flex
 
+handlers:
+- url: /.*
+  script: app.php
+
 runtime_config:
   document_root: .
 
