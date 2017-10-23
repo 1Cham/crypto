@@ -1,6 +1,4 @@
 <?php
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
 /**
  * Copyright 2016 Google Inc.
  *
@@ -30,7 +28,7 @@ $pdo = new PDO($dsn, $user, $password);
 // Create the database if it doesn't exist
 $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 $pdo->query('CREATE TABLE IF NOT EXISTS btctrades ' .
-    '(time_stamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP, user_ip CHAR(64))');
+    '(tid interger NOT NULL,amount double precision NOT NULL,price money NOT NULL,timestamp interger NOT NULL,PRIMARY KEY (tid))');
 	
 // Add the PDO object to our Silex application.
 $app['pdo'] = $pdo;
@@ -48,3 +46,4 @@ $ ->get('/', function (Application $app) {
 });
 # [END example]
 return $app;
+?>
