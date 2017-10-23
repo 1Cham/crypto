@@ -1,16 +1,20 @@
-runtime: php55
-api_version: 1
-threadsafe: true
+runtime: php
+env: flex
 
-handlers:
-- url: /.*
-  script: receiver.php
-  
-# [START env]
+runtime_config:
+  document_root: .
+
+#[START env]
 env_variables:
-  # Replace project, instance, database, user and password with the values obtained
-  # when configuring your Cloud SQL instance.
-  MYSQL_DSN: mysql:unix_socket=/cloudsql/pro-bruin-145004:asia-east1:centralsql;dbname=car_tracker
-  MYSQL_USER: tracker
-  MYSQL_PASSWORD: 'Testing123'
-# [END env]
+    # Replace USER, PASSWORD, DATABASE, and CONNECTION_NAME with the
+    # values obtained when configuring your Cloud SQL instance.
+    POSTGRES_USER: 'postgres'
+    POSTGRES_PASSWORD: '2gK8566u2NcohymI'
+    POSTGRES_DSN: pgsql:dbname=crypto;host=/cloudsql/pro-bruin-145004:australia-southeast1:crypto
+#[END env]
+
+#[START cloudsql_settings]
+# Use the connection name obtained when configuring your Cloud SQL instance.
+beta_settings:
+    cloud_sql_instances: "pro-bruin-145004:australia-southeast1:crypto"
+#[END cloudsql_settings]
