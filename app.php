@@ -32,7 +32,7 @@ $pdo->query('CREATE TABLE IF NOT EXISTS btctrades ' .
 	
 // Add the PDO object to our Silex application.
 $app['pdo'] = $pdo;
-$ ->get('/', function (Application $app) {
+$app->get('/', function (Application $app) {
 
 	$json = file_get_contents('https://api.btcmarkets.net/market/BTC/AUD/trades');
 	$obj = json_decode($json);
