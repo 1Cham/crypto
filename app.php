@@ -14,15 +14,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 # [START example]
 use Silex\Application;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-
 // create the Silex application
 $app = new Application();
-
 // Create the PDO object for CloudSQL Postgres.
 $dsn = getenv('POSTGRES_DSN');
 $user = getenv('POSTGRES_USER');
@@ -31,46 +27,22 @@ $pdo = new PDO($dsn, $user, $password);
 
 // Create the database if it doesn't exist
 $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-$pdo->query('CREATE TABLE IF NOT EXISTS visits ' .
+$pdo->query('CREATE TABLE IF NOT EXISTS btctrades ' .
     '(time_stamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP, user_ip CHAR(64))');
-
+	
 // Add the PDO object to our Silex application.
 $app['pdo'] = $pdo;
+$ ->get('/', function (Application $app) {
 
-$app->get('/', function (Application $app, Request $request) {
-    $ip = $request->GetClientIp();
-    // Keep only the first two octets of the IP address.
-    $octets = explode($separator = ':', $ip);
-    if (count($octets) < 2) {  // Must be ip4 address
-        $octets = explode($separator = '.', $ip);
-    }
-    if (count($octets) < 2) {
-        $octets = ['bad', 'ip'];  // IP address will be recorded as bad.ip.
-    }
-    // Replace empty chunks with zeros.
-    $octets = array_map(function ($x) {
-        return $x == '' ? '0' : $x;
-    }, $octets);
-    $user_ip = $octets[0] . $separator . $octets[1];
+	$json = file_get_contents('https://api.btcmarkets.net/market/BTC/AUD/trades');
+	$obj = json_decode($json);
+	
+	foreach($obj as $data){
+		$pdo = $app['pdo'];
+    $insert = $pdo->prepare('INSERT INTO btctrades (tid,amount,price,timestamp) values (:tid,:amount,:price,:timestamp)');
+    $insert->execute(['tid' => $data->tid,'amount' => $data->amount,'price' => $data->price,'timestamp' => $data->date]);
+	}
 
-    // Insert a visit into the database.
-    /** @var PDO $pdo */
-    $pdo = $app['pdo'];
-    $insert = $pdo->prepare('INSERT INTO visits (user_ip) values (:user_ip)');
-    $insert->execute(['user_ip' => $user_ip]);
-
-    // Look up the last 10 visits
-    $select = $pdo->prepare(
-        'SELECT * FROM visits ORDER BY time_stamp DESC LIMIT 10');
-    $select->execute();
-    $visits = ["Last 10 visits:"];
-    while ($row = $select->fetch(PDO::FETCH_ASSOC)) {
-        array_push($visits, sprintf('Time: %s Addr: %s', $row['time_stamp'],
-            $row['user_ip']));
-    }
-    return new Response(implode("\n", $visits), 200,
-        ['Content-Type' => 'text/plain']);
 });
 # [END example]
-
 return $app;
