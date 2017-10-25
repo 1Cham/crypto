@@ -17,11 +17,24 @@
 
 // [START app]
 const express = require('express');
+const request = require("request");
 
 const app = express();
 
 app.get('/', (req, res) => {
   res.status(200).send('Hello, world!').end();
+  var url = "https://api.btcmarkets.net/market/BTC/AUD/tick";
+
+request({
+    url: url,
+    json: true
+}, function (error, response, body) {
+
+    if (!error && response.statusCode === 200) {
+        console.log(body) // Print the json response
+    }
+})
+
 });
 
 // Start the server
