@@ -14,6 +14,7 @@
   },
   "scripts": {
     "deploy": "gcloud app deploy",
+    "start": "node server.js",
     "lint": "samples lint",
     "pretest": "npm run lint",
     "unit-test": "ava --verbose test/*.test.js",
