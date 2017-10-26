@@ -15,32 +15,96 @@
 
 'use strict';
 
+// Require process, so we can mock environment variables
+const process = require('process');
+
 // [START app]
 const express = require('express');
-const request = require("request");
+const Knex = require('knex');
+const crypto = require('crypto');
 
 const app = express();
+app.enable('trust proxy');
 
-app.get('/', (req, res) => {
-  res.status(200).send('Hello, world!').end();
-  var url = "https://api.btcmarkets.net/market/BTC/AUD/tick";
+const knex = connect();
 
-request({
-    url: url,
-    json: true
-}, function (error, response, body) {
+function connect () {
+  // [START connect]
+  const config = {
+    user: process.env.SQL_USER,
+    password: process.env.SQL_PASSWORD,
+    database: process.env.SQL_DATABASE
+  };
 
-    if (!error && response.statusCode === 200) {
-        console.log(body) // Print the json response
-    }
-})
+  if (process.env.INSTANCE_CONNECTION_NAME && process.env.NODE_ENV === 'production') {
+    config.host = `/cloudsql/${process.env.INSTANCE_CONNECTION_NAME}`;
+  }
 
+  // Connect to the database
+  const knex = Knex({
+    client: 'pg',
+    connection: config
+  });
+  // [END connect]
+
+  return knex;
+}
+
+/**
+ * Insert a visit record into the database.
+ *
+ * @param {object} knex The Knex connection object.
+ * @param {object} visit The visit record to insert.
+ * @returns {Promise}
+ */
+function insertVisit (knex, visit) {
+  return knex('visits').insert(visit);
+}
+
+/**
+ * Retrieve the latest 10 visit records from the database.
+ *
+ * @param {object} knex The Knex connection object.
+ * @returns {Promise}
+ */
+function getVisits (knex) {
+  return knex.select('timestamp', 'userIp')
+    .from('visits')
+    .orderBy('timestamp', 'desc')
+    .limit(10)
+    .then((results) => {
+      return results.map((visit) => `Time: ${visit.timestamp}, AddrHash: ${visit.userIp}`);
+    });
+}
+
+app.get('/', (req, res, next) => {
+  // Create a visit record to be stored in the database
+  const visit = {
+    timestamp: new Date(),
+    // Store a hash of the visitor's ip address
+    userIp: crypto.createHash('sha256').update(req.ip).digest('hex').substr(0, 7)
+  };
+
+  insertVisit(knex, visit)
+    // Query the last 10 visits from the database.
+    .then(() => getVisits(knex))
+    .then((visits) => {
+      res
+        .status(200)
+        .set('Content-Type', 'text/plain')
+        .send(`Last 10 visits:\n${visits.join('\n')}`)
+        .end();
+    })
+    .catch((err) => {
+      next(err);
+    });
 });
 
-// Start the server
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
   console.log(`App listening on port ${PORT}`);
   console.log('Press Ctrl+C to quit.');
 });
 // [END app]
+
+module.exports = app;
